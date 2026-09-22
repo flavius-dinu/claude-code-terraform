@@ -46,6 +46,8 @@ jobs:
               uses: anthropics/claude-code-action@v1
               with:
                   claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+                  # Re-explain after @claude pushes fixes to the PR (the explainer never pushes, so no loop)
+                  allowed_bots: "claude[bot]"
                   prompt: |
                       You are explaining a pull request to reviewers.
                       PR title: "${{ github.event.pull_request.title }}"
