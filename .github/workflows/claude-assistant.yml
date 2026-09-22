@@ -1,0 +1,37 @@
+# .github/workflows/claude-assistant.yml
+# On-demand: comment "@claude ..." on a PR or issue and Claude answers or pushes a fix.
+# Only runs for you/collaborators, so strangers can't drain your Pro usage.
+
+name: Claude Assistant
+
+on:
+    issue_comment:
+        types: [created]
+    pull_request_review_comment:
+        types: [created]
+
+jobs:
+    claude:
+        if: >-
+            contains(github.event.comment.body, '@claude') &&
+            contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        permissions:
+            contents: write # lets "@claude fix this" push a commit
+            pull-requests: write
+            issues: write
+            id-token: write
+
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 1
+
+            - uses: anthropics/claude-code-action@v1
+              with:
+                  claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+                  track_progress: true # live checkbox progress comment, looks great on camera
+                  claude_args: >-
+                      --model sonnet
+                      --max-turns 15
